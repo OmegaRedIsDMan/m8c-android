@@ -72,6 +72,8 @@ class M8SDLActivity : SDLActivity() {
 
     private var usbConnection: UsbDeviceConnection? = null
 
+    private var currentColor: Int? = null
+
     override fun onStart() {
         Log.i(TAG, "Searching for an M8 device")
         super.onStart()
@@ -151,6 +153,10 @@ class M8SDLActivity : SDLActivity() {
 
     override fun onUnhandledMessage(command: Int, param: Any?): Boolean {
         if (command == 0x8001 && param is Int) {
+            if (currentColor == param) {
+                return true
+            }
+            currentColor = param
             val r = param shr 16
             val g = (param shr 8) and 0xFF
             val b = param and 0xFF
