@@ -7,6 +7,7 @@ import android.view.HapticFeedbackConstants.VIRTUAL_KEY
 import android.view.HapticFeedbackConstants.VIRTUAL_KEY_RELEASE
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_DOWN
+import android.view.MotionEvent.ACTION_CANCEL
 import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_UP
@@ -51,7 +52,7 @@ internal class M8TouchListener(
                     }
                 }
 
-                ACTION_UP, ACTION_POINTER_UP -> {
+                ACTION_UP, ACTION_POINTER_UP, ACTION_CANCEL -> {
                     keyState = keyState and key.code.inv()
                     Log.d(TAG, "Sending key up $key as $keyState")
                     sendClickEvent(keyState.toChar())
@@ -68,11 +69,13 @@ internal class M8TouchListener(
                 view.performHapticFeedback(VIRTUAL_KEY, FLAG_IGNORE_VIEW_SETTING)
             }
 
-            ACTION_UP, ACTION_POINTER_UP -> {
+            ACTION_UP, ACTION_POINTER_UP, ACTION_CANCEL -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
                     view.performHapticFeedback(VIRTUAL_KEY_RELEASE, FLAG_IGNORE_VIEW_SETTING)
                 }
-                view.performClick()
+                if (motionEvent.actionMasked != ACTION_CANCEL) {
+                    view.performClick()
+                }
             }
         }
         return true
